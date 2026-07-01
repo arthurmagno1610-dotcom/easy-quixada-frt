@@ -49,6 +49,8 @@ const API_URL =
     ? "http://localhost:5000"
     : "https://easy-quixada-srv-1.onrender.com";
 
+console.log("API URL:", API_URL);
+
 let stores = [];
 let categories = [];
 let activeView = "dashboard";
@@ -97,10 +99,13 @@ async function apiRequest(path, options = {}) {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
+    console.log(data?.erro || data?.mensagem || "Erro ao conectar com a API");
     throw new Error(
       data?.erro || data?.mensagem || "Erro ao conectar com a API",
     );
   }
+
+  console.log("API response:", data);
 
   return data;
 }
