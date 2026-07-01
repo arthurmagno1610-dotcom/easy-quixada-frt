@@ -44,9 +44,10 @@ const actionCards = [
   },
 ];
 
-const API_URL = window.location.origin.startsWith("http")
-  ? window.location.origin
-  : "http://localhost:3000";
+const API_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : "https://easy-quixada-srv-1.onrender.com";
 
 let stores = [];
 let categories = [];
@@ -96,19 +97,26 @@ async function apiRequest(path, options = {}) {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(data?.erro || data?.mensagem || "Erro ao conectar com a API");
+    throw new Error(
+      data?.erro || data?.mensagem || "Erro ao conectar com a API",
+    );
   }
 
   return data;
 }
 
 function normalizeCategoryName(name) {
-  return String(name || "").trim().toLowerCase();
+  return String(name || "")
+    .trim()
+    .toLowerCase();
 }
 
 function findCategoryByName(name) {
   const normalizedName = normalizeCategoryName(name);
-  return categories.find((category) => normalizeCategoryName(category.nome_categoria) === normalizedName);
+  return categories.find(
+    (category) =>
+      normalizeCategoryName(category.nome_categoria) === normalizedName,
+  );
 }
 
 async function createCategoryIfNeeded(categoryName) {
@@ -172,13 +180,15 @@ function fileToDataUrl(file) {
 
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error("Nao foi possivel carregar a imagem."));
+    reader.onerror = () =>
+      reject(new Error("Nao foi possivel carregar a imagem."));
     reader.readAsDataURL(file);
   });
 }
 
 function icon(name) {
-  const common = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
+  const common =
+    'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
   const icons = {
     home: `<svg ${common}><path d="m3 10.8 9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>`,
     store: `<svg ${common}><path d="M4 10h16"/><path d="M5 10l1-6h12l1 6"/><path d="M6 10v10h12V10"/><path d="M9 20v-6h6v6"/></svg>`,
@@ -223,12 +233,16 @@ function sidebar() {
         </span>
       </button>
       <nav class="nav" aria-label="Navegação principal">
-        ${navItems.map((item) => `
+        ${navItems
+          .map(
+            (item) => `
           <button class="nav-item ${activeView === item.id ? "active" : ""}" data-view="${item.id}">
             <span class="nav-icon">${icon(item.icon)}</span>
             <span>${item.label}</span>
           </button>
-        `).join("")}
+        `,
+          )
+          .join("")}
       </nav>
       <button class="logout">
         <span class="nav-icon">${icon("logout")}</span>
@@ -259,7 +273,9 @@ function dashboard() {
     </section>
     <section class="section-heading"><h2>O que você pode fazer aqui?</h2></section>
     <section class="action-grid">
-      ${actionCards.map((card) => `
+      ${actionCards
+        .map(
+          (card) => `
         <article class="action-card tone-${card.tone}">
           <div class="card-head">
             <span class="card-icon">${icon(card.icon)}</span>
@@ -267,7 +283,9 @@ function dashboard() {
           </div>
           <button class="card-link" data-view="${card.id}">${card.action}${icon("arrow")}</button>
         </article>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </section>
     <section class="tip-panel">
       <span class="tip-badge">${icon("info")}</span>
@@ -285,8 +303,12 @@ function dashboard() {
 }
 
 function storesView() {
-  const activeStores = stores.filter((store) => store.status === "Ativa").length;
-  const pendingStores = stores.filter((store) => store.status === "Pendente").length;
+  const activeStores = stores.filter(
+    (store) => store.status === "Ativa",
+  ).length;
+  const pendingStores = stores.filter(
+    (store) => store.status === "Pendente",
+  ).length;
 
   return `
     <section class="page-header">
@@ -306,7 +328,9 @@ function storesView() {
         <input type="search" placeholder="Buscar loja" aria-label="Buscar loja" />
       </div>
       <div class="store-list">
-        ${stores.map((store) => `
+        ${stores
+          .map(
+            (store) => `
           <article class="store-row">
             <span class="store-cover">${store.cover ? `<img src="${escapeHtml(store.cover)}" alt="">` : icon("store")}</span>
             <div>
@@ -318,7 +342,9 @@ function storesView() {
             <span class="rating">${icon("star")} ${escapeHtml(store.rating)}</span>
             <button class="icon-button" aria-label="Abrir ${escapeHtml(store.name)}">${icon("arrow")}</button>
           </article>
-        `).join("")}
+        `,
+          )
+          .join("")}
       </div>
     </section>
   `;
@@ -407,7 +433,8 @@ async function handleStoreSubmit(event) {
     }
 
     const imageFile = data.get("imagem");
-    const imageDataUrl = (await fileToDataUrl(imageFile)) || storeFormDraft.imagemDataUrl || "";
+    const imageDataUrl =
+      (await fileToDataUrl(imageFile)) || storeFormDraft.imagemDataUrl || "";
 
     const payload = {
       nome: data.get("nome").trim(),
@@ -427,7 +454,9 @@ async function handleStoreSubmit(event) {
       body: JSON.stringify(payload),
     });
 
-    stores.unshift(storeFromApi({ ...savedStore, nome_categoria: category?.nome_categoria }));
+    stores.unshift(
+      storeFromApi({ ...savedStore, nome_categoria: category?.nome_categoria }),
+    );
     showStoreForm = false;
     selectedStoreCategory = "";
     storeFormDraft = {};
@@ -536,7 +565,9 @@ function render() {
     button.addEventListener("click", () => setView(button.dataset.view));
   });
   document.querySelectorAll("[data-store-form]").forEach((button) => {
-    button.addEventListener("click", () => toggleStoreForm(button.dataset.storeForm === "open"));
+    button.addEventListener("click", () =>
+      toggleStoreForm(button.dataset.storeForm === "open"),
+    );
   });
   const storeFormElement = document.querySelector("#store-form");
   if (storeFormElement) {
@@ -551,4 +582,3 @@ function render() {
 
 render();
 loadInitialData();
-
