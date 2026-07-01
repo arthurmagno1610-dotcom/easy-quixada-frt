@@ -44,10 +44,16 @@ const actionCards = [
   },
 ];
 
+<<<<<<< HEAD
 const API_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:5000"
     : "https://easy-quixada-srv-1.onrender.com";
+=======
+const API_URL = window.location.origin.startsWith("http")
+  ? window.location.origin
+  : "https://easy-quixada-srv-1.onrender.com/";
+>>>>>>> ccfea3ed52290f0a3de3d46c4cebc471590635be
 
 let stores = [];
 let categories = [];
